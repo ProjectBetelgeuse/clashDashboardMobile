@@ -1,3 +1,3 @@
-## A clash Bashboard App
+## A Clash Bashboard App
 
 Build with React Native
