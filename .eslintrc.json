@@ -8,7 +8,8 @@
         "plugin:react/recommended",
         "airbnb",
         "plugin:react-native/all",
-        "plugin:react/jsx-runtime"
+        "plugin:react/jsx-runtime",
+        "plugin:@typescript-eslint/recommended"
     ],
     "overrides": [
     ],
@@ -17,18 +18,31 @@
         "ecmaFeatures": {
             "jsx": true
         },
-        "sourceType": "module"
+        "sourceType": "module",
+        "parser": "@typescript-eslint/parser"
     },
     "plugins": [
         "react",
-        "react-native"
+        "react-native",
+        "@typescript-eslint"
     ],
     "rules": {
-        "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+        "no-use-before-define": "off",
+        "@typescript-eslint/no-use-before-define": [
+            "error",{"variables": false}
+        ],
+        "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx",".ts",".tsx"] }],
         "indent":["error",4],
         "react/jsx-indent": ["error", 4],
-        "react/jsx-indent-props": ["error",4]
+        "react/jsx-indent-props": ["error",4],
+        "import/extensions": ["error", "ignorePackages", {
+            "ts": "never",
+            "tsx": "never"
+        }]
     },
     "settings": {
+        "import/resolver": {
+            "typescript": {}
+        }
     }
 }
