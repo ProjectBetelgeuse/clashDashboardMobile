@@ -3,13 +3,13 @@ import {
     Box,
     Button,
     Flex,
-    Pressable,
-    SectionList,
-    Text,
     Input,
     Modal,
-    useToast,
+    Pressable,
+    SectionList,
     Switch,
+    Text,
+    useToast,
 } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useRef, useState } from 'react';
@@ -107,9 +107,8 @@ const styles = StyleSheet.create({
     },
 });
 
-function Setting() {
-    const url = 'http://192.168.100.1:9090';
-    const auth = '123456';
+export default function Setting({ route }) {
+    const { url, auth } = route.params;
     const [showModal, setShowModal] = useState(false);
     const [sectionData, setSectionData] = useState(sectionDataInit as SectionItemData[]);
     const [portChangeValue, setPortChangeValue] = useState('');
@@ -267,7 +266,16 @@ function Setting() {
                 <Modal.Content>
                     <Modal.Header alignItems="center" borderBottomWidth="0"><Text>Change the Port</Text></Modal.Header>
                     <Modal.Body>
-                        <Input ref={portRef} inputMode="numeric" variant="filled" _input={{ bg: 'muted.200' }} focusOutlineColor="muted.200" value={portChangeValue} onChangeText={handlePortChange} />
+                        <Input
+                            ref={portRef}
+                            maxLength={5}
+                            inputMode="numeric"
+                            variant="filled"
+                            _input={{ bg: 'muted.200' }}
+                            focusOutlineColor="muted.200"
+                            value={portChangeValue}
+                            onChangeText={handlePortChange}
+                        />
                     </Modal.Body>
                     <Modal.Footer justifyContent="flex-start" padding={0}>
                         <Button.Group isAttached flexGrow={1}>
@@ -305,5 +313,3 @@ function Setting() {
         </>
     );
 }
-
-export default Setting;

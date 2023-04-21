@@ -2,9 +2,13 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeBaseProvider } from 'native-base';
-import { StatusScreen } from './component/StatusScreen';
-import Setting from './component/SettingScreen';
+import StatusScreen from './screen/StatusScreen';
+import Setting from './screen/SettingScreen';
 
+const connectionURL = {
+    url: 'http://192.168.100.1:9090',
+    auth: '123456',
+};
 const screenOptions = ({ route }) => ({
     tabBarIcon: ({ focused, size, color }) => {
         let iconName;
@@ -28,8 +32,8 @@ export default function App() {
         <NavigationContainer>
             <NativeBaseProvider>
                 <Tab.Navigator screenOptions={screenOptions}>
-                    <Tab.Screen name="Status" component={StatusScreen} />
-                    <Tab.Screen name="Setting" component={Setting} />
+                    <Tab.Screen name="Status" component={StatusScreen} initialParams={connectionURL} />
+                    <Tab.Screen name="Setting" component={Setting} initialParams={connectionURL} />
                 </Tab.Navigator>
             </NativeBaseProvider>
         </NavigationContainer>
