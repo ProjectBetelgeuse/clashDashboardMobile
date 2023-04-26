@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     },
 });
 
-export default function Setting({ route }) {
+export default function Setting({ route }:{route:any}) {
     const { url, auth } = route.params;
     const [showModal, setShowModal] = useState(false);
     const [sectionData, setSectionData] = useState(sectionDataInit as SectionItemData[]);
@@ -116,8 +116,10 @@ export default function Setting({ route }) {
     const portRef = useRef(null);
     const toast = useToast();
 
+    const fetchData = wretch(`${url}/configs`).auth(`Bearer ${auth}`);
+
     const fetchConfigs = async () => {
-        const configs = await wretch(`${url}/configs`).auth(`Bearer ${auth}`).get().json();
+        const configs = await fetchData.get().json();
         const newSectionData = sectionData.map((section) => ({
             ...section,
             data: section.data.map((item) => {
@@ -151,19 +153,19 @@ export default function Setting({ route }) {
             setShowModal(true);
             setClickedData(item);
         } else {
-            await wretch(`${url}/configs`).auth(`Bearer ${auth}`).patch({ [section.category]: item.key });
+            await fetchData.patch({ [section.category]: item.key });
             await fetchConfigs();
         }
     };
 
     const onToggleButton = async (status) => {
-        await wretch(`${url}/configs`).auth(`Bearer ${auth}`).patch({ 'allow-lan': status });
+        await fetchData.patch({ 'allow-lan': status });
         await fetchConfigs();
     };
 
     const handlePortChange = (value) => setPortChangeValue(value);
     const handlePortSave = async () => {
-        await wretch(`${url}/configs`).auth(`Bearer ${auth}`).patch({ [clickedData.key]: Number(portChangeValue) });
+        await fetchData.patch({ [clickedData.key]: Number(portChangeValue) });
         // setSectionData(sectionData.map((section) => ({
         //     ...section,
         //     data: section.data.map((item) => {
@@ -180,7 +182,12 @@ export default function Setting({ route }) {
         // })));
         setPortChangeValue('');
         setShowModal(false);
-        await fetchConfigs();
+        await fetchConfigs().catch(() => {
+            toast.show({
+                title: 'Network Error',
+                placement: 'top',
+            });
+        });
     };
 
     // render each buttons in the setting menus
@@ -238,7 +245,7 @@ export default function Setting({ route }) {
     };
 
     return (
-        <>
+        <View>
             <SectionList
                 p="3"
                 bg="#f2f1f7"
@@ -310,6 +317,6 @@ export default function Setting({ route }) {
                     </Modal.Footer>
                 </Modal.Content>
             </Modal>
-        </>
+        </View>
     );
 }
