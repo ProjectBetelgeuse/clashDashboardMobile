@@ -67,8 +67,7 @@ export function StatusCard(
     }:
         { trafficData: number, status: string, connectionData: number },
 ) {
-    const [lineData, setLineData] = useState(Array(30)
-        .fill(0));
+    const [lineData, setLineData] = useState(Array(30).fill(0));
     useEffect(() => {
         if (trafficData) {
             if (lineData.length === 30) {

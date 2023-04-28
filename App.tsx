@@ -1,17 +1,28 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { NativeBaseProvider } from 'native-base';
+import {
+    Button, Center, Flex, NativeBaseProvider, PresenceTransition, Text,
+} from 'native-base';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View, StyleSheet } from 'react-native';
+import { useEffect, useState } from 'react';
 import StatusScreen from './screen/StatusScreen';
 import Setting from './screen/SettingScreen';
 import ProxiesScreen from './screen/ProxiesScreen';
 import RuleScreen from './screen/RuleScreen';
 import ConnectionScreen from './screen/ConnectionScreen';
+import BackendForm from './screen/BackendForm';
 
-const connectionURL = {
-    url: 'http://192.168.100.1:9090',
-    auth: '123456',
-};
+interface ConnectionInfo {
+    url:string,
+    auth:string
+}
+// const connectionURL = {
+//     url: 'http://192.168.100.1:9090',
+//     auth: '123456',
+// };
 const screenOptions = ({ route }) => ({
     tabBarIcon: ({ focused, size, color }) => {
         let iconName;
@@ -40,16 +51,79 @@ const screenOptions = ({ route }) => ({
 
 const Tab = createBottomTabNavigator();
 export default function App() {
+    const [isURLExist, setIsURLExist] = useState(false);
+    const [connectionInfo, setConnectionInfo] = useState({} as ConnectionInfo);
+    useEffect(() => {
+        const getURL = async () => {
+            // await AsyncStorage.clear();
+            const clashURL = await AsyncStorage.getItem('clashURL');
+            const clashAuth = await AsyncStorage.getItem('clashAuth');
+            if (clashURL !== null && clashAuth !== null) {
+                setConnectionInfo({
+                    url: clashURL,
+                    auth: clashAuth,
+                });
+                setIsURLExist(true);
+            }
+        };
+        getURL();
+    }, []);
+
+    const handleSubmit = async (url, auth) => {
+        setConnectionInfo({
+            url,
+            auth,
+        });
+        setIsURLExist(true);
+    };
+
+    const style = StyleSheet.create({
+        transaction: {
+            flex: 1,
+        },
+    });
     return (
         <NavigationContainer>
             <NativeBaseProvider>
-                <Tab.Navigator screenOptions={screenOptions}>
-                    <Tab.Screen name="Status" component={StatusScreen} initialParams={connectionURL} />
-                    <Tab.Screen name="Proxies" component={ProxiesScreen} initialParams={connectionURL} />
-                    <Tab.Screen name="Rule" component={RuleScreen} initialParams={connectionURL} />
-                    <Tab.Screen name="Connection" component={ConnectionScreen} initialParams={connectionURL} />
-                    <Tab.Screen name="Setting" component={Setting} initialParams={connectionURL} />
-                </Tab.Navigator>
+                {isURLExist ? (
+                    <PresenceTransition
+                        visible={isURLExist}
+                        initial={{
+                            opacity: 0,
+                        }}
+                        animate={{
+                            opacity: 1,
+                            transition: {
+                                duration: 1000,
+                            },
+                        }}
+                        style={style.transaction}
+                    >
+                        <Tab.Navigator screenOptions={screenOptions}>
+                            <Tab.Screen name="Status" component={StatusScreen} initialParams={connectionInfo} />
+                            <Tab.Screen name="Proxies" component={ProxiesScreen} initialParams={connectionInfo} />
+                            <Tab.Screen name="Rule" component={RuleScreen} initialParams={connectionInfo} />
+                            <Tab.Screen name="Connection" component={ConnectionScreen} initialParams={connectionInfo} />
+                            <Tab.Screen name="Setting" component={Setting} initialParams={connectionInfo} />
+                        </Tab.Navigator>
+                    </PresenceTransition>
+                ) : (
+                    <PresenceTransition
+                        visible={!isURLExist}
+                        initial={{
+                            opacity: 0,
+                        }}
+                        animate={{
+                            opacity: 1,
+                            transition: {
+                                duration: 1000,
+                            },
+                        }}
+                        style={style.transaction}
+                    >
+                        <BackendForm handleSubmit={handleSubmit} />
+                    </PresenceTransition>
+                )}
             </NativeBaseProvider>
         </NavigationContainer>
     );
