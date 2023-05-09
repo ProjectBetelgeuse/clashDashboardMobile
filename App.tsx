@@ -2,12 +2,14 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import {
-    Button, Center, Flex, NativeBaseProvider, PresenceTransition, Text,
+    Button, Center, Flex, NativeBaseProvider, PresenceTransition, Text, useToast,
 } from 'native-base';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, StyleSheet } from 'react-native';
 import { useEffect, useState } from 'react';
+import wretch from 'wretch';
+import AbortAddon from 'wretch/dist/addons/abort';
 import StatusScreen from './screen/StatusScreen';
 import Setting from './screen/SettingScreen';
 import ProxiesScreen from './screen/ProxiesScreen';
@@ -53,23 +55,7 @@ const Tab = createBottomTabNavigator();
 export default function App() {
     const [isURLExist, setIsURLExist] = useState(false);
     const [connectionInfo, setConnectionInfo] = useState({} as ConnectionInfo);
-    useEffect(() => {
-        const getURL = async () => {
-            // await AsyncStorage.clear();
-            const clashURL = await AsyncStorage.getItem('clashURL');
-            const clashAuth = await AsyncStorage.getItem('clashAuth');
-            if (clashURL !== null && clashAuth !== null) {
-                setConnectionInfo({
-                    url: clashURL,
-                    auth: clashAuth,
-                });
-                setIsURLExist(true);
-            }
-        };
-        getURL();
-    }, []);
-
-    const handleSubmit = async (url, auth) => {
+    const handleSubmit = (url, auth) => {
         setConnectionInfo({
             url,
             auth,
@@ -92,10 +78,12 @@ export default function App() {
                             opacity: 0,
                         }}
                         animate={{
-                            opacity: 1,
                             transition: {
                                 duration: 1000,
                             },
+                        }}
+                        exit={{
+                            opacity: 1,
                         }}
                         style={style.transaction}
                     >
@@ -114,10 +102,12 @@ export default function App() {
                             opacity: 0,
                         }}
                         animate={{
-                            opacity: 1,
                             transition: {
                                 duration: 1000,
                             },
+                        }}
+                        exit={{
+                            opacity: 0,
                         }}
                         style={style.transaction}
                     >
